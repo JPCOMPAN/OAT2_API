@@ -1,8 +1,14 @@
 // ======================================================================
 // LOG
 // ======================================================================
-function logMessage(msg) {
-  document.getElementById("log").textContent = msg;
+function logMessage(msg, json = null) {
+  const logEl = document.getElementById("log");
+
+  if (json) {
+    logEl.textContent = msg + "\n" + JSON.stringify(json, null, 2);
+  } else {
+    logEl.textContent = msg;
+  }
 }
 
 document.getElementById("btnClear").addEventListener("click", () => {
@@ -18,10 +24,13 @@ document.getElementById("tmdb-search-form").addEventListener("submit", async (e)
   const div = document.getElementById("tmdb-results");
 
   div.innerHTML = "<p>Buscando...</p>";
+  logMessage("Buscando filmes...");
 
   const res = await fetch(`/api/tmdb/search?q=${encodeURIComponent(termo)}`);
   const filmes = await res.json();
-  
+
+  logMessage("Filmes encontrados:", filmes);
+
   div.innerHTML = "";
 
   filmes.forEach(f => {
@@ -65,13 +74,16 @@ function addFavoriteButtonEvents() {
         poster: btn.dataset.poster
       };
 
+      logMessage("Enviando favorito...", filme);
+
       const res = await fetch("/api/favoritos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ filme })
       });
 
-      logMessage(await res.text());
+      const txt = await res.text();
+      logMessage(txt);
     });
   });
 }
@@ -86,9 +98,12 @@ document.getElementById("openlibrary-search-form").addEventListener("submit", as
   const div = document.getElementById("openlibrary-results");
 
   div.innerHTML = "<p>Buscando...</p>";
+  logMessage("Buscando livros...");
 
   const res = await fetch(`/api/openlibrary/search?q=${encodeURIComponent(termo)}`);
   const livros = await res.json();
+
+  logMessage("Livros encontrados:", livros);
 
   div.innerHTML = "";
 
@@ -121,8 +136,12 @@ async function carregarFavoritos() {
   const div = document.getElementById("favoritos-list");
   div.innerHTML = "<p>Carregando...</p>";
 
+  logMessage("Carregando favoritos...");
+
   const res = await fetch("/api/favoritos");
   const favoritos = await res.json();
+
+  logMessage("Favoritos carregados:", favoritos);
 
   if (favoritos.length === 0) {
     div.innerHTML = "<p>Nenhum favorito salvo.</p>";
@@ -162,10 +181,13 @@ function addRemoveFavoriteEvents() {
     btn.addEventListener("click", async () => {
       const id = btn.dataset.id;
 
+      logMessage(`Removendo favorito ID ${id}...`);
+
       await fetch(`/api/favoritos/${id}`, { method: "DELETE" });
 
-      carregarFavoritos();
       logMessage("Favorito removido com sucesso!");
+
+      carregarFavoritos();
     });
   });
 }
