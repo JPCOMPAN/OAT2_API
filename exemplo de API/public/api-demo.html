@@ -7,8 +7,8 @@
     
     <style>
       :root {
-        --color-tmdb: #0d47a1; /* Azul Escuro */
-        --color-openlibrary: #4caf50; /* Verde */
+        --color-tmdb: #0d47a1;
+        --color-openlibrary: #4caf50;
         --color-white: #ffffff;
         --color-dark: #343a40;
         --color-light: #f8f9fa;
@@ -65,22 +65,19 @@
         padding: 0.75rem 1.25rem;
         margin-bottom: 0;
         color: var(--color-white);
-        border-bottom: 1px solid rgba(0,0,0,.125);
         font-weight: bold;
       }
       .card-body {
         padding: 1.25rem;
       }
 
-      /* Grid Mobile First */
       .results-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 15px;
         padding: 15px 0;
       }
       
-      /* Estilo dos Cards de Resultado */
       .item-card {
         border: 1px solid #ccc;
         border-radius: 8px;
@@ -100,20 +97,12 @@
         flex-grow: 1;
         text-align: left;
       }
-      .card-content h3 {
-        font-size: 1rem;
-        margin-top: 0;
-      }
-      .card-content p {
-        font-size: 0.85rem;
-        margin-bottom: 5px;
-      }
 
-      /* Formulário de Busca */
       .input-group {
         display: flex;
         margin-bottom: 1rem;
       }
+
       .input-group input {
         flex-grow: 1;
         padding: 0.375rem 0.75rem;
@@ -121,6 +110,7 @@
         border-radius: 0.25rem 0 0 0.25rem;
         font-size: 1rem;
       }
+
       .input-group button {
         padding: 0.375rem 0.75rem;
         border: none;
@@ -128,7 +118,6 @@
         cursor: pointer;
       }
       
-      /* Cores específicas para os botões de busca */
       #tmdb-search-form button {
         background-color: var(--color-tmdb);
       }
@@ -136,7 +125,6 @@
         background-color: var(--color-openlibrary);
       }
 
-      /* Logs */
       .response-area {
         background-color: #e9ecef;
         border: 1px solid #ced4da;
@@ -148,6 +136,7 @@
         margin: 0;
         min-height: 50px;
       }
+
       .card-footer {
         padding: 10px;
         text-align: right;
@@ -171,61 +160,79 @@
 
         <section class="card shadow-sm">
           <div class="card-header" style="background-color: var(--color-tmdb);">
-            🍿 **TMDB** - Busca de Filmes (GET)
+            🍿 TMDB - Busca de Filmes (GET)
           </div>
           <div class="card-body">
-            <p>Digite o título do filme para buscar. **Exemplos práticos** para o método GET.</p>
-            
+
             <form id="tmdb-search-form" class="mb-4">
               <div class="input-group">
                 <input type="text" id="tmdb-search-input" placeholder="Pesquisar filme (Ex: Oppenheimer)" required>
-                <button type="submit">Buscar Filme</button>
+                <button type="submit">Buscar</button>
               </div>
             </form>
-            
+
             <h4 class="mt-4">Resultados:</h4>
             <div id="tmdb-results" class="results-grid">
-              <p>Digite um termo e clique em buscar.</p>
+              <p>Digite algo e clique em buscar.</p>
             </div>
           </div>
         </section>
 
         <section class="card shadow-sm">
           <div class="card-header" style="background-color: var(--color-openlibrary);">
-            📚 **Open Library** - Busca de Livros (GET)
+            📚 Open Library - Livros (GET)
           </div>
           <div class="card-body">
-            <p>Digite o nome do livro ou autor para buscar. Os resultados são injetados via **DOM**.</p>
-            
+
             <form id="openlibrary-search-form" class="mb-4">
               <div class="input-group">
                 <input type="text" id="openlibrary-search-input" placeholder="Pesquisar livro (Ex: Senhor dos Anéis)" required>
-                <button type="submit">Buscar Livro</button>
+                <button type="submit">Buscar</button>
               </div>
             </form>
-            
+
             <h4 class="mt-4">Resultados:</h4>
             <div id="openlibrary-results" class="results-grid">
-              <p>Digite um termo e clique em buscar.</p>
+              <p>Digite algo e clique em buscar.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- FAVORITOS -->
+        <section class="card shadow-sm">
+          <div class="card-header" style="background-color:#6c757d;">
+            ⭐ Meus Filmes Favoritos
+          </div>
+
+          <div class="card-body">
+            <button id="btnCarregarFavoritos"
+              style="background:#0d6efd;color:white;padding:10px;border:none;border-radius:6px;cursor:pointer;">
+              Carregar Favoritos
+            </button>
+
+            <div id="favoritos-list" class="results-grid" style="margin-top:20px;">
+              <p>Nenhum favorito carregado.</p>
             </div>
           </div>
         </section>
 
         <section class="card">
-          <div class="card-header" style="background-color: var(--color-dark);">Logs de Requisição e Resposta</div>
+          <div class="card-header" style="background-color: var(--color-dark);">Logs</div>
           <div class="card-body response-area">
-            <div class="mb-3">
-              <label for="log" class="form-label">Registro de saída:</label>
-              <pre id="log">Pronto.</pre>
-            </div>
+            <pre id="log">Pronto.</pre>
           </div>
+
           <div class="card-footer">
-            <button id="btnClear" style="background-color: transparent; border: 1px solid #6c757d; color: #6c757d; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Limpar Log</button>
+            <button id="btnClear"
+              style="background:transparent;border:1px solid #6c757d;padding:6px 12px;color:#6c757d;cursor:pointer;">
+              Limpar Log
+            </button>
           </div>
         </section>
 
       </div>
     </main>
+
     <script src="script.js"></script>
   </body>
 </html>

@@ -13,19 +13,16 @@ const fetch = require('node-fetch');
 // Cria uma instância da aplicação Express.
 const app = express();
 // Define a porta onde o servidor irá escutar. O padrão 3000 é comum em desenvolvimento.
-const PORT = 3000;
+const PORT = 5000;
 
-// *************************************************************************
 // Variáveis de Ambiente e Chaves de API
 // ATENÇÃO: Nunca coloque chaves de API diretamente no código que vai para produção/repositório 
 // sem usar um arquivo .env, mas para fins didáticos, a TMDB Key é definida aqui:
-// *************************************************************************
 // Substitua 'SUA_CHAVE_TMDB_AQUI' pela sua chave real da API TMDB.
 const TMDB_API_KEY = '33cc79e2003a68a2051851921ae14527'; 
 
-// *************************************************************************
+
 // Middlewares e Configurações
-// *************************************************************************
 
 // Configura o Express para servir arquivos estáticos (HTML, CSS, JavaScript client-side) 
 // que estão localizados na pasta 'public'.
@@ -141,6 +138,41 @@ app.get('/', (req, res) => {
     // O nome do seu arquivo principal no esquema que você enviou é 'api-demo.html' 
     // ou 'api-educacional.html'. Ajuste o nome conforme sua escolha.
     res.sendFile(path.join(__dirname, 'public', 'api-demo.html'));
+});
+
+// Array para armazenar FAVORITOS na memória do servidor
+let favoritos = [];
+
+// LISTAR FAVORITOS
+app.get('/api/favoritos', (req, res) => {
+    res.json(favoritos);
+});
+
+// ADICIONAR FAVORITO
+app.post('/api/favoritos', express.json(), (req, res) => {
+    const { filme } = req.body;
+
+    if (!filme || !filme.id) {
+        return res.status(400).json({ error: "É necessário enviar um objeto 'filme' com 'id'." });
+    }
+
+    // Verificar se já está nos favoritos
+    if (favoritos.find(f => f.id === filme.id)) {
+        return res.status(400).json({ error: "Este filme já está nos favoritos." });
+    }
+
+    favoritos.push(filme);
+
+    res.json({ mensagem: "Filme adicionado aos favoritos!", favoritos });
+});
+
+// REMOVER FAVORITO
+app.delete('/api/favoritos/:id', (req, res) => {
+    const id = Number(req.params.id);
+
+    favoritos = favoritos.filter(f => f.id !== id);
+
+    res.json({ mensagem: "Filme removido com sucesso!", favoritos });
 });
 
 // *************************************************************************

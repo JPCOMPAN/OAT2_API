@@ -1,148 +1,171 @@
-      const logEl = document.getElementById('log');
-      
-      /**
-       * Função de LOG que exibe mensagens e objetos JSON na área de log.
-       */
-      function log(msg, json) {
-        const time = new Date().toLocaleTimeString();
-        if (json) {
-          logEl.textContent = `[${time}] ${msg}\n` + JSON.stringify(json, null, 2) + "\n\n" + logEl.textContent;
-        } else {
-          logEl.textContent = `[${time}] ${msg}\n\n` + logEl.textContent;
-        }
-      }
+// ======================================================================
+// LOG
+// ======================================================================
+function logMessage(msg) {
+  document.getElementById("log").textContent = msg;
+}
 
-      /**
-       * Função genérica para executar o fetch e registrar no log.
-       */
-      async function doFetchAndLog(url, method, containerId, displayFunction, query = null) {
-          log(`Iniciando ${method} para: ${url}${query ? '?q=' + query : ''}`);
-          const container = document.getElementById(containerId);
-          container.innerHTML = `<p>Buscando por "${query || 'populares'}"...</p>`; // Feedback para o usuário
-
-          try {
-              let fetchUrl = url;
-              if (query) {
-                  // Assume que rotas de busca usam o parâmetro 'q'
-                  fetchUrl += `?q=${encodeURIComponent(query)}`;
-              }
-              
-              const response = await fetch(fetchUrl, { method: method });
-              
-              if (!response.ok) {
-                  // Tenta obter o corpo do erro, caso seja JSON
-                  const errorBody = await response.json().catch(() => response.statusText);
-                  log(`ERRO: Status ${response.status} ${response.statusText} da API`, errorBody);
-                  container.innerHTML = `<p style="color: red;">Erro ao carregar dados: ${response.status} ${response.statusText}</p>`;
-                  return;
-              }
-              
-              const data = await response.json();
-              log(`Sucesso! Resposta da API (${containerId})`, data);
-
-              // Chama a função específica para exibir os dados no DOM
-              displayFunction(data, container, query);
-
-          } catch (error) {
-              log(`Erro de rede ou processamento: ${error.message}`);
-              container.innerHTML = `<p style="color: red;">Erro na requisição: ${error.message}</p>`;
-          }
-      }
-
-      // ----------------------------------------------------------------------
-      // Funções Específicas de Exibição (Manipulação do DOM)
-      // ----------------------------------------------------------------------
-
-      function displayMovies(moviesData, container, query) {
-          // A TMDB retorna um array de objetos (results) no nosso server.js
-          const movies = Array.isArray(moviesData) ? moviesData : [];
-          container.innerHTML = ''; 
-          
-          if (movies.length === 0) {
-              container.innerHTML = `<p>Nenhum filme encontrado para "${query || 'a sua busca'}".</p>`;
-              return;
-          }
-          
-          const fragment = document.createDocumentFragment();
-          movies.slice(0, 10).forEach(movie => { 
-              const item = document.createElement('div');
-              item.classList.add('item-card', 'movie-card'); 
-
-              const imageUrl = movie.poster_path 
-                  ? `https://image.tmdb.org/t/p/w200${movie.poster_path}` 
-                  : 'placeholder-movie.png';
-
-              item.innerHTML = `
-                  <img src="${imageUrl}" alt="${movie.title}" class="card-image">
-                  <div class="card-content">
-                      <h3>${movie.title}</h3>
-                      <p>Data: ${movie.release_date}</p>
-                      <p>Avaliação: ⭐️ ${movie.vote_average}</p>
-                  </div>
-              `;
-              fragment.appendChild(item);
-          });
-          container.appendChild(fragment);
-      }
-
-      function displayBooks(booksData, container, query) {
-          // A Open Library retorna um array de objetos (docs) no nosso server.js
-          const books = Array.isArray(booksData) ? booksData : [];
-          container.innerHTML = ''; 
-          
-          if (books.length === 0) {
-              container.innerHTML = `<p>Nenhum livro encontrado para "${query || 'a sua busca'}".</p>`;
-              return;
-          }
-          
-          const fragment = document.createDocumentFragment();
-          books.slice(0, 10).forEach(book => { 
-              const item = document.createElement('div');
-              item.classList.add('item-card', 'book-card'); 
-
-              const coverID = book.cover_i;
-              const coverUrl = coverID 
-                  ? `https://covers.openlibrary.org/b/id/${coverID}-M.jpg` 
-                  : 'placeholder-book.png';
-
-              item.innerHTML = `
-                  <img src="${coverUrl}" alt="${book.title || 'Livro sem Título'}" class="card-image">
-                  <div class="card-content">
-                      <h3>${book.title || 'Título Desconhecido'}</h3>
-                      <p>Autor(es): ${book.author_name ? book.author_name.join(', ') : 'Desconhecido'}</p>
-                      <p>Ano: ${book.first_publish_year || 'N/D'}</p>
-                  </div>
-              `;
-              fragment.appendChild(item);
-          });
-          container.appendChild(fragment);
-      }
-
-      // ----------------------------------------------------------------------
-      // Configuração de Eventos
-      // ----------------------------------------------------------------------
-
-      // Listener para o botão Limpar Log
-      document.getElementById('btnClear').addEventListener('click', () => {
-        logEl.textContent = 'Pronto.';
-      });
-      
-      // Listener para o formulário de busca de FILMES (TMDB)
-    document.getElementById('tmdb-search-form').addEventListener('submit', function(e) {
-    e.preventDefault(); 
-    const query = document.getElementById('tmdb-search-input').value;
-    if (query) {
-        // MUDE A ROTA AQUI: de /api/tmdb/popular para a nova rota de busca
-        doFetchAndLog('/api/tmdb/search', 'GET', 'tmdb-results', displayMovies, query);
-    }
+document.getElementById("btnClear").addEventListener("click", () => {
+  document.getElementById("log").textContent = "Pronto.";
 });
 
-      
-      // Listener para o formulário de busca de LIVROS (Open Library)
-      document.getElementById('openlibrary-search-form').addEventListener('submit', function(e) {
-          e.preventDefault(); 
-          const query = document.getElementById('openlibrary-search-input').value;
-          if (query) {
-              doFetchAndLog('/api/openlibrary/search', 'GET', 'openlibrary-results', displayBooks, query);
-          }
+// ======================================================================
+// TMDB - BUSCA FILMES
+// ======================================================================
+document.getElementById("tmdb-search-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const termo = document.getElementById("tmdb-search-input").value.trim();
+  const div = document.getElementById("tmdb-results");
+
+  div.innerHTML = "<p>Buscando...</p>";
+
+  const res = await fetch(`/api/tmdb/search?q=${encodeURIComponent(termo)}`);
+  const filmes = await res.json();
+  
+  div.innerHTML = "";
+
+  filmes.forEach(f => {
+    const poster = f.poster_path
+      ? `https://image.tmdb.org/t/p/w500${f.poster_path}`
+      : "https://via.placeholder.com/300x450?text=Sem+Imagem";
+
+    const card = document.createElement("div");
+    card.className = "item-card";
+
+    card.innerHTML = `
+      <img class="card-image" src="${poster}">
+      <div class="card-content">
+        <h3>${f.title}</h3>
+        <p>Ano: ${f.release_date ? f.release_date.substring(0, 4) : "N/A"}</p>
+      </div>
+      <button class="addFavBtn"
+        data-id="${f.id}"
+        data-title="${f.title}"
+        data-poster="${poster}"
+        style="background:#0d6efd;color:white;border:none;padding:10px;cursor:pointer;">
+        ⭐ Favoritar
+      </button>
+    `;
+
+    div.appendChild(card);
+  });
+
+  addFavoriteButtonEvents();
+});
+
+// ======================================================================
+// BOTÃO FAVORITAR
+// ======================================================================
+function addFavoriteButtonEvents() {
+  document.querySelectorAll(".addFavBtn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const filme = {
+        id: Number(btn.dataset.id),
+        title: btn.dataset.title,
+        poster: btn.dataset.poster
+      };
+
+      const res = await fetch("/api/favoritos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filme })
       });
+
+      logMessage(await res.text());
+    });
+  });
+}
+
+// ======================================================================
+// OPENLIBRARY - LIVROS
+// ======================================================================
+document.getElementById("openlibrary-search-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const termo = document.getElementById("openlibrary-search-input").value.trim();
+  const div = document.getElementById("openlibrary-results");
+
+  div.innerHTML = "<p>Buscando...</p>";
+
+  const res = await fetch(`/api/openlibrary/search?q=${encodeURIComponent(termo)}`);
+  const livros = await res.json();
+
+  div.innerHTML = "";
+
+  livros.forEach(l => {
+    const cover = l.cover_i
+      ? `https://covers.openlibrary.org/b/id/${l.cover_i}-L.jpg`
+      : "https://via.placeholder.com/300x450?text=Sem+Imagem";
+
+    const card = document.createElement("div");
+    card.className = "item-card";
+
+    card.innerHTML = `
+      <img class="card-image" src="${cover}">
+      <div class="card-content">
+        <h3>${l.title}</h3>
+        <p>Autor: ${l.author_name ? l.author_name[0] : "Não informado"}</p>
+      </div>
+    `;
+
+    div.appendChild(card);
+  });
+});
+
+// ======================================================================
+// FAVORITOS - LISTAR
+// ======================================================================
+document.getElementById("btnCarregarFavoritos").addEventListener("click", carregarFavoritos);
+
+async function carregarFavoritos() {
+  const div = document.getElementById("favoritos-list");
+  div.innerHTML = "<p>Carregando...</p>";
+
+  const res = await fetch("/api/favoritos");
+  const favoritos = await res.json();
+
+  if (favoritos.length === 0) {
+    div.innerHTML = "<p>Nenhum favorito salvo.</p>";
+    return;
+  }
+
+  div.innerHTML = "";
+
+  favoritos.forEach(filme => {
+    const card = document.createElement("div");
+    card.className = "item-card";
+
+    card.innerHTML = `
+      <img class="card-image" src="${filme.poster}">
+      <div class="card-content">
+        <h3>${filme.title}</h3>
+      </div>
+
+      <button class="removeFavBtn"
+        data-id="${filme.id}"
+        style="background:#dc3545;color:white;border:none;padding:10px;cursor:pointer;">
+        ❌ Remover
+      </button>
+    `;
+
+    div.appendChild(card);
+  });
+
+  addRemoveFavoriteEvents();
+}
+
+// ======================================================================
+// REMOVER FAVORITO
+// ======================================================================
+function addRemoveFavoriteEvents() {
+  document.querySelectorAll(".removeFavBtn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
+
+      await fetch(`/api/favoritos/${id}`, { method: "DELETE" });
+
+      carregarFavoritos();
+      logMessage("Favorito removido com sucesso!");
+    });
+  });
+}
