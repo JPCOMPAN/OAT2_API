@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Filmes • API</title>
+    <title>Filmes • Livros • API</title>
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
@@ -19,6 +19,7 @@
 
       <main>
         <section class="grid">
+          
           <div class="panel">
             <div class="head">
               <h2>Filmes</h2>
@@ -31,6 +32,7 @@
             </form>
 
             <div id="tmdb-results" class="results-grid"></div>
+            <div id="tmdb-pagination" class="pagination"></div>
           </div>
 
           <div class="panel">
@@ -44,6 +46,7 @@
             </form>
 
             <div id="openlibrary-results" class="results-grid"></div>
+            <div id="openlibrary-pagination" class="pagination"></div>
           </div>
 
           <div class="panel favorites-panel" style="grid-column:1/-1;">
@@ -57,6 +60,7 @@
             <pre id="log" class="log">Pronto.</pre>
             <button id="btnClear" class="chip clear-btn">Limpar Log</button>
           </div>
+
         </section>
       </main>
     </div>
