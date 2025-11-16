@@ -1,6 +1,3 @@
-// ======================================================================
-// LOG
-// ======================================================================
 function logMessage(msg, json = null) {
   const logEl = document.getElementById("log");
 
@@ -15,9 +12,6 @@ document.getElementById("btnClear").addEventListener("click", () => {
   document.getElementById("log").textContent = "Pronto.";
 });
 
-// ======================================================================
-// TMDB - BUSCA FILMES
-// ======================================================================
 document.getElementById("tmdb-search-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const termo = document.getElementById("tmdb-search-input").value.trim();
@@ -62,9 +56,6 @@ document.getElementById("tmdb-search-form").addEventListener("submit", async (e)
   addFavoriteButtonEvents();
 });
 
-// ======================================================================
-// BOTÃO FAVORITAR
-// ======================================================================
 function addFavoriteButtonEvents() {
   document.querySelectorAll(".addFavBtn").forEach(btn => {
     btn.addEventListener("click", async () => {
@@ -88,9 +79,6 @@ function addFavoriteButtonEvents() {
   });
 }
 
-// ======================================================================
-// OPENLIBRARY - LIVROS
-// ======================================================================
 document.getElementById("openlibrary-search-form").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -127,9 +115,6 @@ document.getElementById("openlibrary-search-form").addEventListener("submit", as
   });
 });
 
-// ======================================================================
-// FAVORITOS - LISTAR
-// ======================================================================
 document.getElementById("btnCarregarFavoritos").addEventListener("click", carregarFavoritos);
 
 async function carregarFavoritos() {
@@ -173,9 +158,6 @@ async function carregarFavoritos() {
   addRemoveFavoriteEvents();
 }
 
-// ======================================================================
-// REMOVER FAVORITO
-// ======================================================================
 function addRemoveFavoriteEvents() {
   document.querySelectorAll(".removeFavBtn").forEach(btn => {
     btn.addEventListener("click", async () => {
