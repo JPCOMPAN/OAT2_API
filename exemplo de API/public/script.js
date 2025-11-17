@@ -151,6 +151,7 @@ async function renderFilmes(lista) {
               label: "❌ Remover",
               type: "remove",
               onClick: async ev => {
+                carregarFavoritos()
                 await fetch(`/api/favoritos/${encodeURIComponent(f.id)}`, { method: "DELETE" })
                 renderFilmes(filmesCache)
               }
@@ -159,6 +160,7 @@ async function renderFilmes(lista) {
               label: "⭐ Favoritar",
               type: "fav",
               onClick: async ev => {
+                carregarFavoritos()
                 await fetch("/api/favoritos", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -190,12 +192,14 @@ document.getElementById("tmdb-search-form").onsubmit = async e => {
   filmesPaginaAtual = 1
   const filmes = await fetchJson(`/api/tmdb/search?q=${encodeURIComponent(q)}`)
   if (filmes) renderFilmes(filmes)
+  
 }
 
 document.getElementById("tmdb-popular-btn").onclick = async () => {
   logMessage("Buscando populares...")
   filmesPaginaAtual = 1
   const filmes = await fetchJson("/api/tmdb/popular")
+  carregarFavoritos();
   if (filmes) renderFilmes(filmes)
 }
 
@@ -250,6 +254,7 @@ async function renderLivros(lista) {
               label: "❌ Remover",
               type: "remove",
               onClick: async ev => {
+                carregarFavoritos()
                 await fetch(`/api/favoritos/${encodeURIComponent(id)}`, { method: "DELETE" })
                 renderLivros(livrosCache)
               }
@@ -258,10 +263,12 @@ async function renderLivros(lista) {
               label: "⭐ Favoritar",
               type: "fav",
               onClick: async ev => {
+                carregarFavoritos()
                 await fetch("/api/favoritos", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ livro: { id, title: l.title, poster: cover } })
+                  
                 })
                 renderLivros(livrosCache)
               }
@@ -298,16 +305,6 @@ async function carregarFavoritos() {
       img: f.poster,
       title: f.title,
       meta: "",
-      actions: [
-        {
-          label: "❌ Remover",
-          type: "remove",
-          onClick: async () => {
-            await fetch(`/api/favoritos/${encodeURIComponent(f.id)}`, { method: "DELETE" })
-            carregarFavoritos()
-          }
-        }
-      ]
     })
 
     div.appendChild(card)
